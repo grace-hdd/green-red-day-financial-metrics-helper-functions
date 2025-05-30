@@ -1,3 +1,6 @@
+# Green Red Day Financial Metrics Helper Functions
+
+
 This repository contains a Python project designed to perform detailed analysis of OHLC (Open, High, Low, Close) financial market data. It provides tools and scripts to import, visualize, and analyze stock or cryptocurrency price data based on OHLC candlestick information. The project helps traders, analysts, and developers to gain insights into market trends, volatility, and price patterns using programmatic methods.
 
 Features
