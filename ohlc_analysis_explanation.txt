@@ -1,0 +1,184 @@
+identify_day_types(ohlc_df):
+    requirements: 
+        - Analyze stock/currency/crypto price data
+        - Determine for each day if the price closed higher or lower than it opened
+        - Label each day as: 
+            + 'green' : price increased (bullish day)
+            + 'red': price decreased (bearish day)
+            + 'neutral': price stayed the same
+
+    Logic behind Green and Red days:
+        if Close > Open : it's a green day (price went up)
+        if Close < Open: it's a red day (price went down)
+        if Close == Open: it's a neutral day
+
+    df = ohlc_df.copy() : copies the original DataFrame so you don't change the original input
+
+    df['DayType] : Creates a new column called DayType
+
+    df.apply(..., axis=1) : applies a function to each row in the DataFrame
+
+    lambda row:  a short function that checks each row's Open and Close values
+
+    'green' if row['Close'] > row['Open'] : if the price went up, label it green
+
+    'red' if row['Close'] , row['Open']: if the price went down, label it red
+
+    'neutral': if the price didn't change, label it neutral
+
+
+get_green_day_subset():
+    - Filter the OHLC market data
+    - Keep only "green" days
+    - Return a subset DataFrame with only those green days
+
+    inputs: 
+        - ohlc_df: pd.DataFrame: your market data wiht Open, High, Low, Close columns
+        - day_types: pd.Series: A series of day type labels ('green', 'red', 'neutral')
+
+        green_days = ohlc_df[day_types == 'green']:
+            this is a boolean mask filter in Pandas
+            data_types == 'green' : returns a Series of true or false for each row
+            ohlc_df[]: selects only the rows where this conndition is true
+
+        return green_days:
+            returns the filtered DataFrame back to the user
+
+
+get_green_day_subset:
+    this function filters the OHLC market data and returns only the "red" days
+
+    - a "red day" shows bearish sentiment - the price dropped during that trading session
+    - traders analyze red days to:
+        Study market weakness
+        Confirm downtrends
+        avoid or short positions
+        evaluate risk signals 
+
+    day_type == 'red': creates a boolean series where only red days are true
+
+    ohlc_df[day_types == 'red']: filters and returns only those rows where the day was red
+
+    return red_days: outputs the filtered DataFrame
+
+
+get_green_day_count(day_types):
+    to count how many 'green' days are in a dataset of market trading days
+
+    counting green days helps you:
+        - understand how bullish the market has been
+        - compare bullish vs. bearish behaviour 
+        - validate strategies that rely on price momentum
+        - backtest how frequently your conditions are met
+
+    day_types == 'green': creates a boolean Series (true where the value is 'green', otherwise false)
+    .sum() : in python, true is treated as 1 and false as 0, so summing gives the count of true
+    return: returns the count as an integer
+
+get_red_day_count(day_types):
+    to count how many days in your dataset were "red" days - meaning days when the asset's closing price was lower than the opening price
+
+    knowing how many red days occured can help you:
+        - gauge bearish sentiment in a market
+        - comppare against the number of green days for trend analysis
+        - inform risk management or backtesting strategies
+        - measure market volatility or drawdown frequency
+
+    day_types == 'red': creates a boolean Series where True corresponds to 'red' entries
+    (day_types == 'red').sum(): in Pandas, True is treated as 1 and False as 0, so .sum() gives the toal number of True values
+
+
+calculate_percentage(specific_count, total_count):
+    to compute the percentage of specific  items relative to the total number of items
+
+    specific_count / total_count: converts to a fraction
+    *100 : converts the fraction to a percentage
+    round(..., 2): rounds the result to 2 decimal places
+    if total_count == 0: prevents division by zero
+
+calculate_daily_returns(ohlc_df):
+    to calculate daily return for each trading day using the formula:
+        daily return = (Close - Open) / Open
+    this measures the percentage gain or loss for each day based on the opening price
+
+    ohlc_df['Close'] - ohlc_df['Open']: finds the price difference between close and open
+    / ohlc_df['Open']: divides the difference by the pening price, giving a relative change
+
+    outputs: a Pandas Series of daily returns (0.012 = +1.2% return, -0.015 = -1.5% loss)
+
+
+get_avg_return(return_series):
+    to calculate the average (mean) of a series of daily returns. this tells you how much on average the asset gains or loses per day over the given period.
+
+    return_series.mean(): computes the mean of the return values using Pandas
+
+    why it's important in trading: 
+        - used to asses overall performance of a trading strategy
+        - helps in: 
+            calculating Sharpe Ratio
+            Comparing assets across time or sectors
+            Optimizing portfolios by targeting high-return instruments
+        - if the average return is negative: strategy/asset may be underperforming
+
+
+get_median_return(return_series):
+    to calculate the median return from a series of daily returns. The median is the middle value when the returns are sorted - it gives a better sense of the 'typical' return, especially when the data contains outliers
+
+    return_series.median(): uses Pandas' built-in method to compute the median value
+
+    output: the middle value of sorted returns. if even count, it averages the two middles values
+
+    why use Median instead of Mean?
+        - most robust against outliers
+        - represents the typical daily return
+        - helpful when your return distribution is not symmetric
+
+    when to use:
+        - high volatility markets: avoid skew from extreme values
+        - skewed return distributions: Median better reflects contral tendency
+        - Comparing performance across assets: Identifies 'typical' day return
+
+
+get_max_return(return_series) - Finds the maximum return:
+    to find the highest daily return in a given series of returns. This tells you the best-performing day during the analyzed time period
+
+    return_series.max(): uses Pandas to extract the larget value
+
+    output: the maximum daily return
+
+    why it's useful in trading:
+        - helps assess the upside potential of an asset or strategy
+        - useful in risk-reward analysis
+        - aids in understanding the return distribution's upper limit
+        - used in performance summaries and backtesting reports
+
+get_min_return(return_series) - Finds the minimum return:
+    to the find the minimum return in a series of daily returns - meaning the worst-performing day
+
+    return_series.min(): uses Pandas to extract the lowest value
+
+    output: the most negative return
+
+    why it's useful in trading:
+        - helps identify downside risk
+        - important in:
+            Risk management
+            Drawdown analysis
+            Stop-loss calibration
+        - often paired with get_max_return() for full return range
+
+
+get_return_std_dev(return_series) - Calculates the standard deviation of returns:
+    to calculate the standard deviation of daily return, which measures how volatile an asset or strategy is. A higher standard deviation means mor price fluctuation day-to-day
+
+    return_series.std(): computes the sample standard deviation of the values in the series using Pandas
+    - it quantifies the dispersion of return values around the average
+    - result is expressed in the same unit as the returns
+
+    why it's useful in Trading:
+        - volatility measure: high std. dev. -> high volatility.  low std. dev. -> more stable asset
+        - key in:
+            Sharpe Ratio calculation
+            Risk management strategies
+            Portfolio Optimization
+
