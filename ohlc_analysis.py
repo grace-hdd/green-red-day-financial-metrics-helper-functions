@@ -3,97 +3,79 @@ import numpy as np
 
 def identify_day_types(ohlc_df):
     """
-    identifies whether each trading day is 'green', 'red', or 'neutral' based on the Open and Close prices.
+    identifies whether each trading day is 'green', 'red', or 'neutral' based on the Open and Close prices,
+    and calculates the percentage of each type.
 
     Parameters:
         ohlc_df (pd.DataFrame): DataFrame containing Open and Close prices with columns 'Open' and 'Close'.
 
     Returns:
-        pd.Series: A Series containing 'green' or 'red' for each day
+        tuple: (pd.DataFrame with DayType column, dict with percentages for each type)
 
     Example usage:
-        day_types = identify_day_types(ohlc_df)
+        df_with_types, percentages = identify_day_types(ohlc_df)
     """
 
     df = ohlc_df.copy() 
 
     df['DayType'] = df.apply( 
-        
         lambda row: 'green' if row['Close'] > row['Open'] else ( 
             'red' if row['Close'] < row['Open'] else 'Neutral' 
         ),
         axis=1
     )
 
-    return df
+    # Calculate percentages
+    total_days = len(df)
+    percentages = {
+        'green': calculate_percentage((df['DayType'] == 'green').sum(), total_days),
+        'red': calculate_percentage((df['DayType'] == 'red').sum(), total_days),
+        'neutral': calculate_percentage((df['DayType'] == 'Neutral').sum(), total_days)
+    }
 
-def get_green_day_subset(ohlc_df, day_types):
+    return df, percentages
+
+def get_green_day_subset(ohlc_df):
     """
     Filters and returns rows for green days (close > open).
 
     Parameters:
         ohlc_df (pd.DataFrame) : the full OHLC DataFrame
-        day_types (pd.Series) : Series containing day types ('green', 'red', 'neutral')
 
     Returns:
         pd.DataFrame: DataFrame containing only the rows for green days.
 
     Example usage:
-        green_days = get_green_day_subset(ohlc_df, day_types)
+        green_days = get_green_day_subset(ohlc_df)
     """
-    green_days = ohlc_df[day_types == 'green']
+    df_with_types, _ = identify_day_types(ohlc_df)
+    green_days = df_with_types[df_with_types['DayType'] == 'green']
     return green_days
 
 
-def get_red_day_subset(ohlc_df, day_types):
+def get_red_day_subset(ohlc_df):
     """
     Filters and returns rows for red days (close < open).
 
     Parameters:
         ohlc_df (pd.DataFrame) : the full OHLC DataFrame
-        day_types (pd.Series) : Series containing day types ('green', 'red', 'neutral')
     
     Returns:
         pd.DataFrame: DataFrame containing only the rows for red days.
 
     Example usage:
-        red_days = get_red_day_subset(ohlc_df, day_types)
+        red_days = get_red_day_subset(ohlc_df)
     """
-    red_days = ohlc_df[day_types == 'red']
+    df_with_types, _ = identify_day_types(ohlc_df)
+    red_days = df_with_types[df_with_types['DayType'] == 'red']
     return red_days
 
 # Counting and Percentage Functions
-def get_green_day_count(day_types):
-    """
-    Counts the number of 'green' days in the day_types Series.
 
-    Parameters:
-        day_types (pd.Series): Series containing day types ('green', 'red', 'neutral').
-
-    Returns:
-        int: The count of 'green' days.
-
-    Example usage:
-        green_count = get_green_day_count(day_types)
-    """
-    return (day_types == 'green').sum()
-
-def get_red_day_count(day_types):
-    """
-    Calculates the number of 'red' days in the day_types Series.
-
-    Parameters:
-        day_types (pd.Series): Series containing day types ('green', 'red', 'neutral').
-
-    Returns:
-        int: The count of 'red' days.
-
-    Example usage:
-        red_count = get_red_day_count(day_types)
-    """
-    return (day_types == 'red').sum()
 
 def calculate_percentage(specific_count, total_count):
+
+    # pandas: columns.unique.count()
     """
     Calculates the percentage of a specific count relative to a total count.
 
@@ -110,6 +92,38 @@ def calculate_percentage(specific_count, total_count):
     if total_count == 0:
         return 0
     return round((specific_count / total_count) * 100, 2)
+
+def get_green_day_count(day_types):
+    """
+    Counts the number of 'green' days in a Series of day types.
+
+    Parameters:
+        day_types (pd.Series): Series containing day type values ('green', 'red', 'Neutral')
+
+    Returns:
+        int: The total count of green days
+
+    Example usage:
+        df_with_types, _ = identify_day_types(ohlc_df)
+        green_count = get_green_day_count(df_with_types['DayType'])
+    """
+    return (day_types == 'green').sum()
+
+def get_red_day_count(day_types):
+    """
+    Counts the number of 'red' days in a Series of day types.
+
+    Parameters:
+        day_types (pd.Series): Series containing day type values ('green', 'red', 'Neutral')
+
+    Returns:
+        int: The total count of red days
+
+    Example usage:
+        df_with_types, _ = identify_day_types(ohlc_df)
+        red_count = get_red_day_count(df_with_types['DayType'])
+    """
+    return (day_types == 'red').sum()
 
 # Return calculation functions
 def calculate_daily_returns(ohlc_df):
