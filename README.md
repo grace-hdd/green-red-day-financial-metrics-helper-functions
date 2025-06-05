@@ -1,50 +1,90 @@
-# Green Red Day Financial Metrics Helper Functions
+# OHLC Analysis Package
 
+A Python package for analyzing OHLC (Open, High, Low, Close) financial market data. This package provides tools for identifying market trends, calculating returns, and performing statistical analysis on financial time series data.
 
-This repository contains a Python project designed to perform detailed analysis of OHLC (Open, High, Low, Close) financial market data. It provides tools and scripts to import, visualize, and analyze stock or cryptocurrency price data based on OHLC candlestick information. The project helps traders, analysts, and developers to gain insights into market trends, volatility, and price patterns using programmatic methods.
+## Features
 
-Features
-Data Import: Load OHLC data from CSV or financial APIs.
+- Day Type Classification (Green/Red/Neutral days)
+- Return Calculations
+- Statistical Analysis
+- Data Visualization
+- Trend Analysis
+- Volatility Metrics
 
-Candlestick Visualization: Plot OHLC candlestick charts to visually interpret market price movements.
+## Installation
 
-Technical Indicators: Calculate common indicators such as moving averages, RSI, MACD, Bollinger Bands, etc.
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/ohlc_analysis.git
+cd ohlc_analysis
+```
 
-Trend Analysis: Identify market trends and reversals using OHLC data.
+2. Create and activate a virtual environment (recommended):
+```bash
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+```
 
-Volatility Metrics: Compute volatility measures like average true range (ATR).
+3. Install the package:
+```bash
+pip install -e .
+```
 
-Custom Alerts: Set conditions to trigger alerts on price patterns or indicator signals.
+## Usage
 
-Backtesting: Basic framework for testing trading strategies based on OHLC data.
+### Basic Usage
 
-Technologies Used
-Python 3.x
+```python
+import pandas as pd
+from ohlc_analysis import *
 
-Pandas for data manipulation
+# Load your OHLC data
+df = pd.read_csv("your_data.csv")
 
-Matplotlib and Plotly for interactive and static plotting
+# Identify day types
+df_with_types, percentages = identify_day_types(df)
+print("Day Types and Percentages:", percentages)
 
-Numpy for numerical calculations
+# Calculate daily returns
+returns = calculate_daily_returns(df)
+print("Average Return:", get_avg_return(returns))
+```
 
-TA-Lib or custom functions for technical indicators
+### Example Analysis
 
-Use Cases
-Financial market data analysis for stocks, forex, or cryptocurrencies.
+```python
+# Get green and red day subsets
+green_days = get_green_day_subset(df)
+red_days = get_red_day_subset(df)
 
-Developing and testing algorithmic trading strategies.
+# Calculate statistics
+avg_return = get_avg_return(returns)
+median_return = get_median_return(returns)
+std_dev = get_return_std_dev(returns)
 
-Visualizing historical price data for research and education.
+print(f"Average Return: {avg_return:.4f}")
+print(f"Median Return: {median_return:.4f}")
+print(f"Standard Deviation: {std_dev:.4f}")
+```
 
-Building automated trading bots or signal generators.
+## Data Format
 
-How to Use
-Clone this repository.
+The package expects OHLC data in a pandas DataFrame with the following columns:
+- Open: Opening price
+- High: Highest price
+- Low: Lowest price
+- Close: Closing price
+- Volume (optional): Trading volume
 
-Install dependencies listed in requirements.txt.
+## Contributing
 
-Load your OHLC data or connect to a financial data API.
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-Run scripts or notebooks to visualize and analyze market data.
+## License
 
-Customize indicators and analysis parameters as needed.
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- Thanks to the pandas and numpy communities for their excellent documentation and tools
+- Inspired by various financial analysis techniques and trading strategies
